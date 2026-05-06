@@ -33,6 +33,13 @@ dependencies:
   nfc_manager: ^3.4.1
   fluttertoast: ^8.2.4
   android_intent_plus: ^5.0.2
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/icon.png"
+  min_sdk_android: 21 # Soporte mínimo para Android
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
