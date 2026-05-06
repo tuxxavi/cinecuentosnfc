@@ -39,20 +39,32 @@ class _CineCuentosNFCAppState extends State<CineCuentosNFCApp> {
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFFFFFFFF),
           foregroundColor: Color(0xFF1F1F1F),
-          elevation: 0,
+          elevation: 1,
+          shadowColor: Colors.black12,
         ),
         useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF4285F4),
+          brightness: Brightness.light,
+          surface: const Color(0xFFFFFFFF),
+        ),
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
-        primaryColor: const Color(0xFF8AB4F8),
+        primaryColor: const Color(0xFF8AB4F8), // Google Light Blue
         scaffoldBackgroundColor: const Color(0xFF131314), // Google Workspace Dark
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF1E1F20),
           foregroundColor: Color(0xFFE3E3E3),
-          elevation: 0,
+          elevation: 1,
+          shadowColor: Colors.black45,
         ),
         useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF8AB4F8),
+          brightness: Brightness.dark,
+          surface: const Color(0xFF1E1F20),
+        ),
       ),
       home: MainScreen(onToggleTheme: _toggleTheme),
     );
@@ -206,13 +218,15 @@ class _MainScreenState extends State<MainScreen>
       return;
     }
 
-    // Mostrar modal de carga
+    // Modal de espera personalizado
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return Dialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          backgroundColor: isDark ? const Color(0xFF1E1F20) : const Color(0xFFFFFFFF),
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -220,12 +234,13 @@ class _MainScreenState extends State<MainScreen>
               children: [
                 const CircularProgressIndicator(color: Color(0xFF4285F4)),
                 const SizedBox(height: 24),
-                const Text(
+                Text(
                   "Aproxima la tarjeta para grabar la película",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
+                    color: isDark ? const Color(0xFFE3E3E3) : const Color(0xFF1F1F1F),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -247,7 +262,7 @@ class _MainScreenState extends State<MainScreen>
           try {
             var mifare = MifareClassic.from(tag);
             if (mifare == null) {
-              Navigator.of(context).pop(); // Cerrar modal
+              Navigator.of(context).pop();
               throw Exception("Etiqueta no compatible con MIFARE Classic.");
             }
 
@@ -263,16 +278,16 @@ class _MainScreenState extends State<MainScreen>
                 data: data,
               );
               NfcManager.instance.stopSession();
-              Navigator.of(context).pop(); // Cerrar modal
+              Navigator.of(context).pop();
               Fluttertoast.showToast(msg: "¡Grabado con éxito!");
             } else {
-              Navigator.of(context).pop(); // Cerrar modal
+              Navigator.of(context).pop();
               throw Exception("Autenticación fallida.");
             }
           } catch (e) {
             NfcManager.instance.stopSession();
             if (Navigator.of(context).canPop()) {
-              Navigator.of(context).pop(); // Cerrar modal por seguridad
+              Navigator.of(context).pop();
             }
             Fluttertoast.showToast(msg: "Error al grabar: $e");
           }
@@ -280,7 +295,7 @@ class _MainScreenState extends State<MainScreen>
       );
     } catch (e) {
       if (Navigator.of(context).canPop()) {
-        Navigator.of(context).pop(); // Cerrar modal si algo falla
+        Navigator.of(context).pop();
       }
       Fluttertoast.showToast(msg: "Fallo de conexión NFC.");
     }
@@ -305,6 +320,12 @@ class _MainScreenState extends State<MainScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final storyNames = _filteredStories;
 
+    // Colores según la pestaña activa: Azul para CineCuentos, Amarillo para Disney
+    final bool isCinecuentos = _tabController.index == 0;
+    final Color itemColor = isCinecuentos
+        ? const Color(0xFF4285F4) // Google Blue
+        : const Color(0xFFFBBC04); // Google Yellow
+
     return Scaffold(
       appBar: AppBar(
         title: SizedBox(
@@ -317,14 +338,14 @@ class _MainScreenState extends State<MainScreen>
               });
             },
             style: TextStyle(
-              color: isDark ? Colors.white : Colors.black,
+              color: isDark ? const Color(0xFFE3E3E3) : const Color(0xFF1F1F1F),
               fontSize: 14,
             ),
             decoration: InputDecoration(
               hintText: 'Buscar...',
-              prefixIcon: const Icon(Icons.search, color: Color(0xFFFFB400), size: 18),
+              prefixIcon: Icon(Icons.search, color: itemColor, size: 18),
               filled: true,
-              fillColor: isDark ? const Color(0xFF1F1F1F) : const Color(0xFFFFFFFF),
+              fillColor: isDark ? const Color(0xFF2E3133) : const Color(0xFFF1F3F4),
               contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20.0),
@@ -337,7 +358,7 @@ class _MainScreenState extends State<MainScreen>
           IconButton(
             icon: Icon(
               Icons.nfc,
-              color: _isNfcAvailable ? const Color(0xFF34A853) : const Color(0xFFEA4335), // Google Green / Red
+              color: _isNfcAvailable ? const Color(0xFF34A853) : const Color(0xFFEA4335),
             ),
             tooltip: 'Ir a los ajustes de NFC',
             onPressed: () async {
@@ -355,7 +376,7 @@ class _MainScreenState extends State<MainScreen>
           IconButton(
             icon: Icon(
               isDark ? Icons.light_mode : Icons.dark_mode,
-              color: const Color(0xFFFFB400),
+              color: itemColor,
             ),
             onPressed: widget.onToggleTheme,
             tooltip: 'Cambiar Modo de Iluminación',
@@ -363,9 +384,9 @@ class _MainScreenState extends State<MainScreen>
         ],
         bottom: TabBar(
           controller: _tabController,
-          labelColor: const Color(0xFFFFB400),
+          labelColor: itemColor,
           unselectedLabelColor: Colors.grey,
-          indicatorColor: const Color(0xFFE50914),
+          indicatorColor: itemColor,
           tabs: const [
             Tab(icon: Icon(Icons.menu_book), text: 'CineCuentos'),
             Tab(icon: Icon(Icons.star), text: 'Disney'),
@@ -386,28 +407,32 @@ class _MainScreenState extends State<MainScreen>
                   final storyId = activeMap[name]!;
 
                   return Card(
-                    color: isDark ? const Color(0xFF1F1F1F) : const Color(0xFFFFFFFF),
+                    color: isDark ? const Color(0xFF1E1F20) : const Color(0xFFFFFFFF),
+                    elevation: isDark ? 0 : 1,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      side: const BorderSide(color: Color(0xFFFFB400), width: 0.5),
+                      borderRadius: BorderRadius.circular(10.0),
+                      side: BorderSide(
+                        color: isDark ? const Color(0xFF333333) : const Color(0xFFE0E0E0),
+                        width: 1.0,
+                      ),
                     ),
                     child: ListTile(
                       leading: Text(
                         name.substring(0, 2),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
-                          color: Color(0xFFE50914),
+                          color: itemColor,
                         ),
                       ),
                       title: Text(
                         name.substring(5),
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.white : Colors.black87,
+                          color: isDark ? const Color(0xFFE3E3E3) : const Color(0xFF1F1F1F),
                         ),
                       ),
-                      trailing: const Icon(Icons.movie, color: Color(0xFFFFB400)),
+                      trailing: Icon(Icons.movie, color: itemColor),
                       onTap: () {
                         _writeNfcTag(storyId, name);
                       },
@@ -421,4 +446,8 @@ class _MainScreenState extends State<MainScreen>
       ),
     );
   }
+}
+
+extension on MainScreen {
+  VoidCallback get ToggleTheme => onToggleTheme;
 }
