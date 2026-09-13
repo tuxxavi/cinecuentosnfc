@@ -30,10 +30,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  nfc_manager: ^3.4.1
+  shared_preferences: ^2.2.2
+  nfc_manager: ^3.3.0
   fluttertoast: ^8.2.4
   android_intent_plus: ^5.0.2
-  flutter_launcher_icons: ^0.13.1
 
 flutter_launcher_icons:
   android: "launcher_icon"
