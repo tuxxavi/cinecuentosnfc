@@ -21,8 +21,9 @@ class _CineCuentosNFCAppState extends State<CineCuentosNFCApp> {
 
   void _toggleTheme() {
     setState(() {
-      _themeMode =
-          _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+      _themeMode = _themeMode == ThemeMode.light
+          ? ThemeMode.dark
+          : ThemeMode.light;
     });
   }
 
@@ -35,7 +36,9 @@ class _CineCuentosNFCAppState extends State<CineCuentosNFCApp> {
       theme: ThemeData(
         brightness: Brightness.light,
         primaryColor: const Color(0xFF4285F4), // Google Blue
-        scaffoldBackgroundColor: const Color(0xFFF8FAFA), // Google Drive Light Background
+        scaffoldBackgroundColor: const Color(
+          0xFFF8FAFA,
+        ), // Google Drive Light Background
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFFFFFFFF),
           foregroundColor: Color(0xFF1F1F1F),
@@ -52,7 +55,9 @@ class _CineCuentosNFCAppState extends State<CineCuentosNFCApp> {
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         primaryColor: const Color(0xFF8AB4F8), // Google Light Blue
-        scaffoldBackgroundColor: const Color(0xFF131314), // Google Workspace Dark
+        scaffoldBackgroundColor: const Color(
+          0xFF131314,
+        ), // Google Workspace Dark
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF1E1F20),
           foregroundColor: Color(0xFFE3E3E3),
@@ -86,73 +91,74 @@ class _MainScreenState extends State<MainScreen>
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
   late TabController _tabController;
-
   final Map<String, int> _cinecuentosMap = {
-    "01 - Los tres cerditos": 1,
-    "02 - Caperucita roja": 2,
-    "03 - El patito feo": 3,
-    "04 - La ratita presumida": 4,
-    "05 - Alicia en el país de las maravillas": 5,
-    "06 - El libro de la selva": 6,
-    "07 - Pinocho": 7,
-    "08 - La Cenicienta": 8,
-    "09 - Los músicos de Bremen": 9,
-    "10 - Rapunzel": 16,
-    "11 - El sodadito de plomo": 17,
-    "12 - La Bella Durmiente": 18,
-    "13 - Hansel y Gretel": 19,
-    "14 - Aladino y la lámpara maravillosa": 20,
-    "15 - La Sirenita": 21,
-    "16 - El Mago de Oz": 22,
-    "17 - El flautista de Hamelín": 23,
-    "18 - Blancanieves": 12,
-    "19 - La bella y la bestia": 25,
-    "20 - La princesa y el guisante": 32,
-    "21 - Cuento de Navidad": 33,
-    "22 - La reina de las nieves": 34,
-    "23 - El gato con botas": 35,
-    "24 - El rey Arturo": 36,
-    "25 - El cascanueces y el rey de los ratones": 37,
-    "26 - Ricitos de oro": 38,
-    "27 - El traje nuevo del emperador": 39,
-    "28 - El cortador de bambú": 40,
-    "29 - Robin Hood": 41,
-    "30 - La cigarra y la hormiga": 48,
-    "31 - Simbad el marino": 49,
-    "32 - Los viajes de Gulliver": 50,
-    "33 - La lechera": 51,
-    "34 - Alí Babá y los 40 ladrones": 52,
-    "35 - Pulgarcito": 53,
-    "36 - La liebre y la tortuga": 54,
-    "37 - Guillermo Tell": 55,
-    "38 - Moby Dick": 34,
-    "39 - Juan y las habichuelas mágicas": 57,
-    "40 - El lobo y las siete cabritillas": 64,
-    "41 - El Enano Saltarín": 65,
-    "42 - La leyenda de Sleepy Hollow": 66,
-    "43 - El jorobado de Notre Dame": 67,
-    "44 - Peter Pan": 68,
-    "45 - Heidi": 69,
-    "46 - El ratón de campo y el ratón de ciudad": 70,
-    "47 - El Sastrecillo Valiente": 71,
-    "48 - La Gallina de los Huevos de Oro": 72,
-    "49 - El fantasma de Canterville": 73,
-    "50 - Ave Fénix": 80,
-    "51 - El pescador Taro Urashima": 81,
-    "52 - El príncipe y el mendigo": 82,
-    "53 - El león y el ratón": 83,
-    "54 - Los cisnes salvajes": 84,
-    "55 - El ruiseñor": 85,
-    "56 - La zorra y las uvas": 86,
-    "57 - Juan sin miedo": 87,
-    "58 - La pequeña cerillera": 88,
+    "001 - Los tres cerditos": 1, // 0x01
+    "002 - Caperucita Roja": 2, // 0x02
+    "003 - El patito feo": 3, // 0x03
+    "004 - La ratita presumida": 4, // 0x04
+    "005 - Alicia en el pais de las maravillas": 5, // 0x05
+    "006 - El libro de la selva": 6, // 0x06
+    "007 - Pinocho": 7, // 0x07
+    "008 - La cenicienta": 8, // 0x08
+    "009 - Los musicos de Bremen": 9, // 0x09
+    "010 - Rapunzel": 16, // 0x10
+    "011 - El soldadito de plomo": 17, // 0x11
+    "012 - La bella durmiente": 18, // 0x12
+    "013 - Hansel y Gretel": 19, // 0x13
+    "014 - Aladino y la lampara maravillosa": 20, // 0x14
+    "015 - La sirenita": 21, // 0x15
+    "016 - El mago de oz": 22, // 0x16
+    "017 - El flautista de hamelin": 23, // 0x17
+    "018 - Blancanieves": 24, // 0x18
+    "019 - La bella y la bestia": 25, // 0x19
+    "020 - La princesa y el guisante": 32, // 0x20
+    "021 - Cuento de navidad": 33, // 0x21
+    "022 - La reina de las nieves": 34, // 0x22
+    "023 - El gato con botas": 35, // 0x23
+    "024 - El rey arturo y excalibur": 36, // 0x24
+    "025 - El cascanueces y el rey de los ratones": 37, // 0x25
+    "026 - Ricitos de oro": 38, // 0x26
+    "027 - El traje nuevo del emperador": 39, // 0x27
+    "028 - El cortador de bambu": 40, // 0x28
+    "029 - Robin hood": 41, // 0x29
+    "030 - La cigarra y la hormiga": 48, // 0x30
+    "031 - Simbad el marino": 49, // 0x31
+    "032 - Los viajes de gulliver": 50, // 0x32
+    "033 - La lechera": 51, // 0x33
+    "034 - Ali baba y los 40 ladrones": 52, // 0x34
+    "035 - Pulgarcito": 53, // 0x35
+    "036 - La liebre y la tortuga": 54, // 0x36
+    "037 - Guillermo Tell": 55, // 0x37
+    "038 - Moby Dick": 56, // 0x38
+    "039 - Juan y las habichuelas mágicas": 57, // 0x39
+    "040 - El enano saltarin": 64, // 0x40
+    "041 - El lobo y las 7 cabritillas": 65, // 0x41
+    "042 - El jorobado de Notre Dame": 66, // 0x42
+    "043 - Peter Pan": 67, // 0x43
+    "044 - La leyenda de Pegaso": 68, // 0x44
+    "045 - Heidi": 69, // 0x45
+    "046 - El raton de campo y el raton de ciudad": 70, // 0x46
+    "047 - El sastrecillo valiente": 71, // 0x47
+    "048 - La gallina de los huevos de oro": 72, // 0x48
+    "049 - El fantasma de Canterville": 73, // 0x49
+    "050 - Ave fenix": 80, // 0x50
+    "051 - Atenea y aracne": 81, // 0x51
+    "052 - El pescador Taro Urashima": 82, // 0x52
+    "053 - El zapatero y los duendes": 83, // 0x53
+    "054 - El principe y el mendigo": 84, // 0x54
+    "055 - El leon y el raton": 85, // 0x55
+    "056 - Los cisnes salvajes": 86, // 0x56
+    "057 - El ruiseñor": 87, // 0x57
+    "058 - La zorra y las uvas": 88, // 0x58
+    "059 - Juan sin miedo": 89, // 0x59
+    "060 - La pequeña cerillera": 96, // 0x60
   };
 
   final Map<String, int> _disneyMap = {
-    "201 - rey leon": 201,
-    "202 - libro de la selva": 202,
-    "203 - Lilo y stich": 203,
-    "204 - aladin": 204,
+    "201 - El rey Leon": 201, // Serie 200 -> 0x01
+    "202 - El Libro de la Selva": 202, // Serie 200 -> 0x02
+    "203 - Lilo y Stitch": 203, // Serie 200 -> 0x03
+    "204 - Aladdín": 204, // Serie 200 -> 0x04
   };
 
   @override
@@ -225,8 +231,12 @@ class _MainScreenState extends State<MainScreen>
       builder: (BuildContext context) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          backgroundColor: isDark ? const Color(0xFF1E1F20) : const Color(0xFFFFFFFF),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          backgroundColor: isDark
+              ? const Color(0xFF1E1F20)
+              : const Color(0xFFFFFFFF),
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -240,7 +250,9 @@ class _MainScreenState extends State<MainScreen>
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? const Color(0xFFE3E3E3) : const Color(0xFF1F1F1F),
+                    color: isDark
+                        ? const Color(0xFFE3E3E3)
+                        : const Color(0xFF1F1F1F),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -273,10 +285,7 @@ class _MainScreenState extends State<MainScreen>
 
             if (auth) {
               Uint8List data = _getBlockDataForStory(storyValue);
-              await mifare.writeBlock(
-                blockIndex: 1,
-                data: data,
-              );
+              await mifare.writeBlock(blockIndex: 1, data: data);
               NfcManager.instance.stopSession();
               Navigator.of(context).pop();
               Fluttertoast.showToast(msg: "¡Grabado con éxito!");
@@ -302,12 +311,15 @@ class _MainScreenState extends State<MainScreen>
   }
 
   List<String> get _filteredStories {
-    final Map<String, int> activeMap =
-        _tabController.index == 0 ? _cinecuentosMap : _disneyMap;
+    final Map<String, int> activeMap = _tabController.index == 0
+        ? _cinecuentosMap
+        : _disneyMap;
     final allNames = activeMap.keys.toList();
     if (_searchQuery.isEmpty) return allNames;
     return allNames
-        .where((name) => name.toLowerCase().contains(_searchQuery.toLowerCase()))
+        .where(
+          (name) => name.toLowerCase().contains(_searchQuery.toLowerCase()),
+        )
         .toList();
   }
 
@@ -345,8 +357,13 @@ class _MainScreenState extends State<MainScreen>
               hintText: 'Buscar...',
               prefixIcon: Icon(Icons.search, color: itemColor, size: 18),
               filled: true,
-              fillColor: isDark ? const Color(0xFF2E3133) : const Color(0xFFF1F3F4),
-              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+              fillColor: isDark
+                  ? const Color(0xFF2E3133)
+                  : const Color(0xFFF1F3F4),
+              contentPadding: const EdgeInsets.symmetric(
+                vertical: 0,
+                horizontal: 10,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20.0),
                 borderSide: BorderSide.none,
@@ -358,7 +375,9 @@ class _MainScreenState extends State<MainScreen>
           IconButton(
             icon: Icon(
               Icons.nfc,
-              color: _isNfcAvailable ? const Color(0xFF34A853) : const Color(0xFFEA4335),
+              color: _isNfcAvailable
+                  ? const Color(0xFF34A853)
+                  : const Color(0xFFEA4335),
             ),
             tooltip: 'Ir a los ajustes de NFC',
             onPressed: () async {
@@ -369,7 +388,8 @@ class _MainScreenState extends State<MainScreen>
                 await intent.launch();
               } catch (e) {
                 Fluttertoast.showToast(
-                    msg: "No se pudieron abrir los ajustes de NFC.");
+                  msg: "No se pudieron abrir los ajustes de NFC.",
+                );
               }
             },
           ),
@@ -402,17 +422,22 @@ class _MainScreenState extends State<MainScreen>
                 itemCount: storyNames.length,
                 itemBuilder: (context, index) {
                   final name = storyNames[index];
-                  final Map<String, int> activeMap =
-                      _tabController.index == 0 ? _cinecuMap : _disneyMap;
+                  final Map<String, int> activeMap = _tabController.index == 0
+                      ? _cinecuMap
+                      : _disneyMap;
                   final storyId = activeMap[name]!;
 
                   return Card(
-                    color: isDark ? const Color(0xFF1E1F20) : const Color(0xFFFFFFFF),
+                    color: isDark
+                        ? const Color(0xFF1E1F20)
+                        : const Color(0xFFFFFFFF),
                     elevation: isDark ? 0 : 1,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                       side: BorderSide(
-                        color: isDark ? const Color(0xFF333333) : const Color(0xFFE0E0E0),
+                        color: isDark
+                            ? const Color(0xFF333333)
+                            : const Color(0xFFE0E0E0),
                         width: 1.0,
                       ),
                     ),
@@ -429,7 +454,9 @@ class _MainScreenState extends State<MainScreen>
                         name.substring(5),
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
-                          color: isDark ? const Color(0xFFE3E3E3) : const Color(0xFF1F1F1F),
+                          color: isDark
+                              ? const Color(0xFFE3E3E3)
+                              : const Color(0xFF1F1F1F),
                         ),
                       ),
                       trailing: Icon(Icons.movie, color: itemColor),
