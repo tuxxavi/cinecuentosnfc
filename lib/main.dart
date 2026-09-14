@@ -126,14 +126,14 @@ class _MainScreenState extends State<MainScreen>
     "033 - La lechera": 51,
     "034 - Ali baba y los 40 ladrones": 52,
     "035 - Pulgarcito": 53,
-    "036 - La liebre y tortuga": 54,
+    "036 - La liebre y la tortuga": 54,
     "037 - Guillermo Tell": 55,
     "038 - Moby Dick": 56,
     "039 - Juan y las habichuelas mágicas": 57,
     "040 - El enano saltarin": 64,
     "041 - El lobo y las 7 cabritillas": 65,
     "042 - El jorobado de Notre Dame": 66,
-    "043 - Peter Pan": 67, // 67 dec = 0x43 hex[cite: 1]
+    "043 - Peter Pan": 97, // 67 dec = 0x43 hex[cite: 1]
     "044 - La leyenda de Pegaso": 68,
     "045 - Heidi": 69,
     "046 - El raton de campo y el raton de ciudad": 70,
@@ -160,7 +160,7 @@ class _MainScreenState extends State<MainScreen>
     "204 - Aladdín": 204,
   };
 
-  // Map dinámico para la Serie 300
+  // Mapa dinámico para la Serie 300 / Cuentos Personalizados
   final Map<String, int> _serie300Map = {
     "301 - Cuento 301": 301,
     "302 - Cuento 302": 302,
@@ -194,6 +194,7 @@ class _MainScreenState extends State<MainScreen>
     if (storiesJson != null) {
       final Map<String, dynamic> decoded = jsonDecode(storiesJson);
       setState(() {
+        _serie300Map.clear();
         decoded.forEach((key, value) {
           _serie300Map[key] = value as int;
         });
@@ -201,21 +202,16 @@ class _MainScreenState extends State<MainScreen>
     }
   }
 
-  // Guarda la lista de la Serie 300
+  // Guarda la lista de cuentos personalizados
   Future<void> _saveCustomStories300() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('custom_serie_300', jsonEncode(_serie300Map));
   }
 
-  // Modal para añadir un cuento a la Serie 300
+  // Diálogo para Añadir Cuento indicando ID libremente (ej: 062, 205, 301...)
   void _showAddStoryDialog() {
+    final TextEditingController idController = TextEditingController();
     final TextEditingController nameController = TextEditingController();
-
-    // Obtener el siguiente ID de la serie (comienza en 301)
-    int nextId = 301;
-    if (_serie300Map.isNotEmpty) {
-      nextId = _serie300Map.values.reduce((a, b) => a > b ? a : b) + 1;
-    }
 
     showDialog(
       context: context,
@@ -227,21 +223,42 @@ class _MainScreenState extends State<MainScreen>
           ),
           backgroundColor: isDark ? const Color(0xFF1E1F20) : Colors.white,
           title: Text(
-            "Añadir a Serie 300 (ID: $nextId)",
+            "Añadir nuevo cuento",
             style: TextStyle(
               color: isDark ? const Color(0xFFE3E3E3) : const Color(0xFF1F1F1F),
             ),
           ),
-          content: TextField(
-            controller: nameController,
-            autofocus: true,
-            style: TextStyle(
-              color: isDark ? const Color(0xFFE3E3E3) : const Color(0xFF1F1F1F),
-            ),
-            decoration: const InputDecoration(
-              labelText: "Nombre del Cuento",
-              hintText: "Ej. Alicia a través del espejo",
-            ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: idController,
+                keyboardType: TextInputType.number,
+                autofocus: true,
+                style: TextStyle(
+                  color: isDark
+                      ? const Color(0xFFE3E3E3)
+                      : const Color(0xFF1F1F1F),
+                ),
+                decoration: const InputDecoration(
+                  labelText: "ID del Cuento",
+                  hintText: "Ej. 62, 205, 301...",
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: nameController,
+                style: TextStyle(
+                  color: isDark
+                      ? const Color(0xFFE3E3E3)
+                      : const Color(0xFF1F1F1F),
+                ),
+                decoration: const InputDecoration(
+                  labelText: "Nombre del Cuento",
+                  hintText: "Ej. Peter Pan 2",
+                ),
+              ),
+            ],
           ),
           actions: [
             TextButton(
@@ -254,20 +271,83 @@ class _MainScreenState extends State<MainScreen>
                 foregroundColor: Colors.white,
               ),
               onPressed: () {
-                final String text = nameController.text.trim();
-                if (text.isNotEmpty) {
-                  final String keyName = "$nextId - $text";
+                final String idText = idController.text.trim();
+                final String nameText = nameController.text.trim();
+
+                if (idText.isNotEmpty && nameText.isNotEmpty) {
+                  final int? parsedId = int.tryParse(idText);
+                  if (parsedId == null) {
+                    Fluttertoast.showToast(
+                      msg: "El ID debe ser un número válido.",
+                    );
+                    return;
+                  }
+
+                  // Formatear el prefijo a 3 dígitos (ej: 62 -> 062)
+                  final String formattedId = parsedId.toString().padLeft(
+                    3,
+                    '0',
+                  );
+                  final String keyName = "$formattedId - $nameText";
+
                   setState(() {
-                    _serie300Map[keyName] = nextId;
+                    _serie300Map[keyName] = parsedId;
                   });
                   _saveCustomStories300();
                   Navigator.of(context).pop();
-                  Fluttertoast.showToast(
-                    msg: "Cuento $nextId añadido correctamente.",
-                  );
+                  Fluttertoast.showToast(msg: "Cuento $formattedId añadido.");
                 }
               },
               child: const Text("Guardar"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Diálogo para Confirmar y Eliminar un cuento de la lista
+  void _confirmDeleteStory(String storyKey, String storyName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          backgroundColor: isDark ? const Color(0xFF1E1F20) : Colors.white,
+          title: Text(
+            "¿Eliminar cuento?",
+            style: TextStyle(
+              color: isDark ? const Color(0xFFE3E3E3) : const Color(0xFF1F1F1F),
+            ),
+          ),
+          content: Text(
+            "¿Estás seguro de que deseas eliminar '$storyName'? Esta acción no se puede deshacer.",
+            style: TextStyle(
+              color: isDark ? const Color(0xFFB0B0B0) : const Color(0xFF4A4A4A),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Cancelar"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFEA4335),
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                setState(() {
+                  _serie300Map.remove(storyKey);
+                });
+                _saveCustomStories300();
+                Navigator.of(context).pop();
+                Fluttertoast.showToast(msg: "Cuento eliminado correctamente.");
+              },
+              child: const Text("Eliminar"),
             ),
           ],
         );
@@ -282,9 +362,13 @@ class _MainScreenState extends State<MainScreen>
     });
   }
 
-  static const String baseBlock1Standard = "000000000000022301010100";
-  static const String baseBlock1Series200 = "000000000000022301010102";
-  static const String baseBlock1Series300 = "000000000000022301010103";
+  // Constantes de trama base según la carpeta objetivo
+  static const String baseBlock1Standard =
+      "000000000000022301010100"; // Carpeta 01/
+  static const String baseBlock1Series200 =
+      "000000000000022301010102"; // Carpeta 02/
+  static const String baseBlock1Series300 =
+      "000000000000022301010103"; // Carpeta 03/
   static const String block1Trailer = "000000";
 
   Uint8List _hexToBytes(String hexString) {
@@ -299,15 +383,18 @@ class _MainScreenState extends State<MainScreen>
     String hexValue = "";
     String baseBlock1 = "";
 
-    if (storyValue >= 301 && storyValue <= 399) {
+    if (storyValue >= 300) {
+      // Serie 300+ -> Apunta a Carpeta 03/
       baseBlock1 = baseBlock1Series300;
-      int adjustedValue = storyValue - 300;
+      int adjustedValue = storyValue >= 301 ? storyValue - 300 : storyValue;
       hexValue = adjustedValue.toRadixString(16).padLeft(2, '0').toUpperCase();
-    } else if (storyValue >= 201 && storyValue <= 204) {
+    } else if (storyValue >= 200) {
+      // Serie 200 (ej: 205) -> Apunta a Carpeta 02/
       baseBlock1 = baseBlock1Series200;
       int adjustedValue = storyValue - 200;
       hexValue = adjustedValue.toRadixString(16).padLeft(2, '0').toUpperCase();
     } else {
+      // Serie Estándar (ej: 062) -> Apunta a Carpeta 01/
       baseBlock1 = baseBlock1Standard;
       hexValue = storyValue.toRadixString(16).padLeft(2, '0').toUpperCase();
     }
@@ -428,6 +515,7 @@ class _MainScreenState extends State<MainScreen>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final storyNames = _filteredStories;
+    final bool isSerie300 = _tabController.index == 2;
 
     final Color itemColor = _tabController.index == 0
         ? const Color(0xFF4285F4)
@@ -556,10 +644,31 @@ class _MainScreenState extends State<MainScreen>
                               : const Color(0xFF1F1F1F),
                         ),
                       ),
-                      trailing: Icon(Icons.movie, color: itemColor),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (isSerie300)
+                            IconButton(
+                              icon: const Icon(
+                                Icons.delete_outline,
+                                color: Color(0xFFEA4335),
+                              ),
+                              tooltip: "Eliminar cuento",
+                              onPressed: () {
+                                _confirmDeleteStory(name, name);
+                              },
+                            ),
+                          Icon(Icons.movie, color: itemColor),
+                        ],
+                      ),
                       onTap: () {
                         _writeNfcTag(storyId, name);
                       },
+                      onLongPress: isSerie300
+                          ? () {
+                              _confirmDeleteStory(name, name);
+                            }
+                          : null,
                     ),
                   );
                 },
@@ -568,12 +677,11 @@ class _MainScreenState extends State<MainScreen>
           ),
         ],
       ),
-      // Muestra el botón de añadir únicamente en la pestaña de la Serie 300
-      floatingActionButton: _tabController.index == 2
+      floatingActionButton: isSerie300
           ? FloatingActionButton(
               onPressed: _showAddStoryDialog,
               backgroundColor: const Color(0xFF34A853),
-              tooltip: "Añadir nuevo cuento 300",
+              tooltip: "Añadir nuevo cuento",
               child: const Icon(Icons.add, color: Colors.white),
             )
           : null,
